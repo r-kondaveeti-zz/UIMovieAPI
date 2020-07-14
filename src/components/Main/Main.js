@@ -9,12 +9,22 @@ import PopoverPopupState from '../PopoverPopupState/PopoverPopupState';
 import Downloads from '../Downloads/Downloads';
 import io from 'socket.io-client';
 import { Alert } from '@material-ui/lab'
+import { ErrorSharp } from '@material-ui/icons';
+import Pagination from '@material-ui/lab/Pagination';
+import pasteTorrentLink from '../PasteTorrentLink/PasteTorrentLink';
+import PasteTorrentLink from '../PasteTorrentLink/PasteTorrentLink';
 
 export default function Main() {
   const [ movies, setMovies ] = useState(null)
+  const [ sideMenuYear, setSideMenuYear ] = useState(null);
+  const [ sideMenuLang, setSideMenuLang ] = useState("English");
+  const [ sideMenuGenre, setSideMenuGenre ] = useState(null);
+  const [ pagination, setPagination ] = useState(false);
+  const [ currentPage, setCurrentPage ] = useState(1);
   const [ query, setQuery ] = useState('empty')
   const [ isDialog, setIsDialog ] = useState(false)
   const [ socket, setSocket ] = useState(null)
+  const [ pasteTorrentLink, setPasteTorrentLink ] = useState(false);
   const [ downloadingMovies, setDownloadingMovies ] = useState([]) 
 
   //Toggle Downloads
@@ -22,19 +32,31 @@ export default function Main() {
 
   const handleSubmit = (movieName) => {
     setMovies(null)
+    setPagination(false)
     if(movieName === '') { movieName = query}
-    Axios.get('http://173.28.18.61:3000/search/'+movieName)
+    Axios.get('http://173.28.18.61:9000/api/movies/'+movieName)
     .then(
         response => {
-            /*
-              Searched movie doesn't exist
-             */
-            if(response.data.name === 'diot') { 
-              toggleIsDialog(); 
-              homeResults();  
-            }
-            else { setMovies(response.data) }
+          if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
+          else { setMovies(response.data); if(response.data.length < 10){ setPagination(false) } else { setPagination(true) }}
         })
+    .catch(err => {
+      setMovies(null)
+      setPagination(false)
+      Axios.get('http://173.28.18.61:3000/api/movies/'+movieName)
+        .then(
+          response => {
+            if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
+            else { setMovies(response.data); if(response.data.length < 10){ setPagination(false) } else { setPagination(true) }}
+          })
+        .catch(err => {     
+          /*
+          Searched movie doesn't exist
+          */
+          toggleIsDialog(); 
+          homeResults();  
+        })
+    })
   }
 
   /*
@@ -44,16 +66,13 @@ export default function Main() {
     /*
       Fetching home-page results 
     */
-    Axios.get('http://173.28.18.61:3000/search/'+query)
+    Axios.get('http://173.28.18.61:9000/api/movies/action/1')
     .then(
         response => {
             setMovies(response.data)
-        })
-    /*
-        Starting socket connection
-    */
-    const socket = io('http://173.28.18.61:3000');
-    setSocket(socket);
+            setPagination(true)
+            console.log(response)
+    })
   }
 
   /* 
@@ -63,42 +82,6 @@ export default function Main() {
   useEffect(() => {
     homeResults()
   }, [])
-
-  useEffect(() => {
-    if(socket !== null) {
-      setSocket(socket);
-      socket.on('allTorrentStaus', response => {
-        socket.emit('renameTitle')
-        /*
-          Comparing movie names in the socket response 
-          to the movies displayed
-        */ 
-        if(movies !== null && response.status !== undefined) {
-          /*
-            TODO: movies are refreshing whenever there's a response from the
-            socket connection, probably caused by the useEffect hook or
-            state is setting again and again.  
-          */
-          if(downloadingMovies !== response.status) {
-            setDownloadingMovies(response.status)
-          } 
-          console.log(response.status)
-          movies.forEach(element => {
-            response.status.forEach(responseElement => {
-              if(responseElement !== undefined) {
-                if(responseElement.name.includes(element.title)) {
-                  /*
-                    Movie name matched!
-                  */
-                  console.log('Matched!');
-                }
-              }
-            })
-          });
-        }
-      })
-    }
-  })
 
   const getMoviesOrLoadingBar = (searchedAgain) => {
     if(movies !== undefined && movies !== null) {
@@ -128,11 +111,10 @@ export default function Main() {
                 vuzeId = singleDownloadingMovie.id;
               }
             })
-            return (<MovieCard key={Math.random()} rating={element.rating} onPlex={element.onPlex} genre={element.genres} torrent={element.torrents} language={element.language} synopsis={element.synopsis} title={element.title} image={element.large_cover_image} heading={element.title} year={element.year} isDownloading={isDownloading} didPressDownload={ didPressDownload }
-               speed={ speed } eta={ eta } vuzeId={ vuzeId } didPressStop={ didPressStop }           
+            return (<MovieCard key={Math.random()} rating={element.rating} onPlex={element.onPlex} genre={element.genres} torrent={element.torrent} language={element.languages[0]} synopsis={element.synopsis} title={element.name} image={element.poster} heading={element.title} year={element.year} isDownloading={isDownloading}
+               speed={ speed } eta={ eta } vuzeId={ vuzeId } didPressDownload= { didPressDownload }       
             />)
         });
-  
         return moviesArray
     } else {
         return (
@@ -159,58 +141,80 @@ export default function Main() {
   }
 
   /*
-    Downloading process:
-      - User presses download
-      - useEffect, one of the method, runs all the time check for 
-      socket response. It discards if the response is []. 
-      - It compares the response, if any, with the movies, 
-      if it finds matches then activates stop button by
-      setting isDownloading prop --<
-      - User stop by pressing the button, the event is then raised to the parent. 
-  */
-
-  /*
     Pressed Download. 
     Runs when user presses download!
   */
  const didPressDownload = (magnet, title) => {
-
-   const movieItem = {
-    title: title,
-    magnet: magnet
-}
-   socket.emit('startDownload', movieItem)
- }
-
-  /* 
-    Runs when the user pressed stop on the
-    movie card! 
-  */
-  const didPressStop = (vuzeId) => {
-    console.log('Pressed stop'+ vuzeId)
-    socket.emit('stopDownload', vuzeId)
+   console.log(btoa(magnet));
+   Axios.put('http://192.168.86.31:6005/api/torrent/', { torrentUrlBase64: btoa(magnet) })
+    .then(response => {
+      console.log("download response --> "+response.data);
+    })
+    .catch(err => {     
+      /**
+       * Show error on the dialog box
+       */
+      console.log(err)
+      toggleIsDialog()
+    })
   }
 
   /*
     Runs when items under English are clicked! -- Genre!
   */
-  const didPressGenreItem = (genre) => {
+  const didPressGenreItem = (genre, isIndianMovie, language, year, pageNumber) => {
+    setCurrentPage(1)
+    if(isIndianMovie) {
+      setSideMenuLang(language);
+      setSideMenuYear(year);
+      setMovies(null)
+      setPagination(false)
+      requestMovies(genre, isIndianMovie, language, year, pageNumber)
+    } else {
     setMovies(null)
-    Axios.get(`http://173.28.18.61:3000${genre}`)
+    setPagination(false)
+    setSideMenuLang("English");
+    setSideMenuGenre(genre);
+    requestMovies(genre, isIndianMovie, language, year, pageNumber)
+    }
+  }
+
+  const requestMovies = (genre, isIndianMovie, language, year, pageNumber) => {
+    if(isIndianMovie) {
+      Axios.get(`http://173.28.18.61:3000/api/movies/${language}/${year}/${pageNumber}`)
       .then(response => {
         setMovies(response.data)
+        setPagination(true)
       })
       .catch(error => console.log(error))
+    } else {
+      Axios.get(`http://173.28.18.61:9000/api/movies/${genre}/${pageNumber}`)
+      .then(response => {
+        setMovies(response.data)
+        setPagination(true)
+      })
+      .catch(error => console.log(error))
+    }
+  }
+
+  const didPressPagination = (event, pageNumber) => {
+    setCurrentPage(pageNumber)
+    if(sideMenuLang !== "English") {
+      setMovies(null);
+      setPagination(false);
+      requestMovies("action", true, sideMenuLang, sideMenuYear, pageNumber);
+    } else { setMovies(null); setPagination(false); requestMovies(movies[0].genres[0], false, "English", 2020, pageNumber); }
   }
 
     return(
         <ThemeProvider theme={theme}>
             <Container maxWidth="sm" style={{display: 'flex', flexDirection: 'column'}} fixed>
-            <Alert style={{marginBottom: 3, marginTop: 7}} severity="info">As this is a beta release, some of movies doesn't seem to download (no status), but they will download on the server, please open Plex to check after a while.</Alert>
-                <NavBar didSearch={ handleSubmit } openDownloads={ setDownloads } didPressGenreItem={ didPressGenreItem } />
-                <PopoverPopupState />
-                { downloads ? <Downloads />: getMoviesOrLoadingBar() }
-                { dialog() }
+              {/* <Alert style={{marginBottom: 3, marginTop: 7}} severity="info">As this is a beta release, some of movies doesn't seem to download (no status), but they will download on the server, please open Plex to check after a while.</Alert> */}
+                  <NavBar didSearch={ handleSubmit } openDownloads={ setDownloads } didPressGenreItem={ didPressGenreItem } openPasteTorrentLink = { setPasteTorrentLink}/>
+                  <PopoverPopupState />
+                  { downloads ? <Downloads openDownloads={ setDownloads }/>: pasteTorrentLink ? <PasteTorrentLink didPressDownload={ didPressDownload }/>: getMoviesOrLoadingBar() }
+                  { dialog() }
+              { downloads || pasteTorrentLink ? <div></div>:  pagination ? <Pagination count={5} style={{display: "flex", justifyContent: "center", paddingTop: 10, paddingBottom: 25}} size="large" onChange={ didPressPagination } page={ currentPage }/> : <div></div>}
             </Container> 
         </ThemeProvider>
     )

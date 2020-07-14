@@ -10,6 +10,7 @@ import { Box } from '@material-ui/core';
 
 import SideMenu from '../SideMenu/SideMenu'
 import FadeMenu from '../FadeMenu/FadeMenu'
+import PasteTorrentLink from '../PasteTorrentLink/PasteTorrentLink';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NavBar({ didSearch, openDownloads, didPressGenreItem }) {
+export default function NavBar({ didSearch, openDownloads, didPressGenreItem, openPasteTorrentLink }) {
   const classes = useStyles();
 
   //Toggle Side menu
@@ -67,12 +68,12 @@ export default function NavBar({ didSearch, openDownloads, didPressGenreItem }) 
           <IconButton className={classes.iconButton} aria-label="menu"
             onClick={ toggleSideMenu }
           >
-            <SideMenu isActive={ sideMenu } openDownloads={ openDownloads } didPressGenreItem={ didPressGenreItem }/>
+            <SideMenu isActive={ sideMenu } openDownloads={ openDownloads } didPressGenreItem={ didPressGenreItem } openPasteTorrentLink = { openPasteTorrentLink }/>
             <MenuIcon />
           </IconButton>
           <InputBase
             className={classes.input}
-            placeholder="Search English Movies"
+            placeholder="Search Movies"
             inputProps={{ 'aria-label': 'search google maps' }}
             onChange={ handleQueryChange }
             onKeyDown={ (event) => { 
@@ -88,7 +89,7 @@ export default function NavBar({ didSearch, openDownloads, didPressGenreItem }) 
           <IconButton color="primary" className={classes.iconButton} aria-label="directions"
             onClick={ toggleFadeMenu }
           >
-            <FadeMenu isActive={ fadeMenu } openDownloads={ openDownloads }/>
+            <FadeMenu isActive={ fadeMenu } openDownloads={ openDownloads } openPasteTorrentLink = { openPasteTorrentLink }/>
           </IconButton>
         </Paper>
       </Box>

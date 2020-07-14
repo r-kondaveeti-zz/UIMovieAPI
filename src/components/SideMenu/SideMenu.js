@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SideMenu({ isActive, openDownloads, didPressGenreItem }) {
+export default function SideMenu({ isActive, openDownloads, didPressGenreItem, openPasteTorrentLink }) {
   const [open, setOpen] = React.useState(true);
 
   const handleClick = () => {
@@ -75,7 +75,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
         </ListItem>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/genre/action")}>
+              <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("action", false, "english", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
                 <ListItemIcon>
                   <HdRoundedIcon />
                 </ListItemIcon>
@@ -83,7 +83,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
               </ListItem>
             </List>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/genre/adventure")}>
+              <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("adventure", false, "english", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
                 <ListItemIcon>
                   <HdRoundedIcon />
                 </ListItemIcon>
@@ -91,7 +91,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
               </ListItem>
             </List>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/genre/horror")}>
+              <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("horror", false, "english", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
                 <ListItemIcon>
                   <HdRoundedIcon />
                 </ListItemIcon>
@@ -99,7 +99,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
               </ListItem>
             </List>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/genre/mystery")}>
+              <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("mystery", false, "english", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
                 <ListItemIcon>
                   <HdRoundedIcon />
                 </ListItemIcon>
@@ -111,21 +111,22 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
                 <ListItemIcon>
                   <HdRoundedIcon />
                 </ListItemIcon>
-                <ListItemText primary="Romantic" onClick={() => didPressGenreItem("/genre/romantic")}/>
+                <ListItemText primary="Romance" onClick={() => { didPressGenreItem("romance", false, "english", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}/>
               </ListItem>
             </List>
           </Collapse>
-        {/* <ListItem button>
+        </List>
+
+        <ListItem button onClick={() => setOpen(!open)}>
           <ListItemIcon>
             <TheatersRoundedIcon />
           </ListItemIcon>
-          <ListItemText primary="Telugu" />
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </ListItem> */}
-        </List>
-        {/* <Collapse in={open} timeout="auto" unmountOnExit>
+          <ListItemText primary="Telugu"/>
+          { open ? <ExpandLess /> : <ExpandMore />}
+        </ListItem>
+        <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/telugu/2020")}>
+            <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("action", true, "telugu", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
               <ListItemIcon>
                 <HighQualityRoundedIcon />
               </ListItemIcon>
@@ -133,7 +134,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
             </ListItem>
           </List>
           <List component="div" disablePadding>
-            <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/telugu/2019")}>
+            <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("action", true, "telugu", 2019, 1); openDownloads(false); openPasteTorrentLink(false) }}>
               <ListItemIcon>  
                 <HdRoundedIcon />
               </ListItemIcon>
@@ -141,7 +142,7 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
             </ListItem>
           </List>
           <List component="div" disablePadding>
-            <ListItem button className={classes.nested} onClick={() => didPressGenreItem("/telugu/2018")}>
+            <ListItem button className={classes.nested} onClick={() => { didPressGenreItem("action", true, "telugu", 2018, 1); openDownloads(false); openPasteTorrentLink(false) } }>
               <ListItemIcon>
                 <HdRoundedIcon />
               </ListItemIcon>
@@ -156,7 +157,48 @@ export default function SideMenu({ isActive, openDownloads, didPressGenreItem })
               <ListItemText primary="Telugu Dubbed" />
             </ListItem>
           </List>
-        </Collapse> */}
+        </Collapse>
+        <ListItem button>
+            <ListItemIcon>
+              <TheatersRoundedIcon />
+            </ListItemIcon>
+            <ListItemText primary="Hindi" />
+            { open ? <ExpandLess /> : <ExpandMore />}
+        </ListItem>
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItem button className={classes.nested} onClick={() => {didPressGenreItem("action", true, "hindi", 2020, 1); openDownloads(false); openPasteTorrentLink(false) }}>
+              <ListItemIcon>
+                <HighQualityRoundedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Hindi 2020" />
+            </ListItem>
+          </List>
+          <List component="div" disablePadding>
+            <ListItem button className={classes.nested} onClick={() => {didPressGenreItem("action", true, "hindi", 2019, 1); openDownloads(false); openPasteTorrentLink(false) }}>
+              <ListItemIcon>  
+                <HdRoundedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Hindi 2019" />
+            </ListItem>
+          </List>
+          <List component="div" disablePadding>
+            <ListItem button className={classes.nested} onClick={() => {didPressGenreItem("action", true, "hindi", 2018, 1); openDownloads(false); openPasteTorrentLink(false) }}>
+              <ListItemIcon>
+                <HdRoundedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Hindi 2018" />
+            </ListItem>
+          </List>
+          <List component="div" disablePadding>
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <HdRoundedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Hindi Dubbed" />
+            </ListItem>
+          </List>
+        </Collapse>
     </div>
   );
 
