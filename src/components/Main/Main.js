@@ -26,6 +26,7 @@ export default function Main() {
   const [ socket, setSocket ] = useState(null)
   const [ pasteTorrentLink, setPasteTorrentLink ] = useState(false);
   const [ downloadingMovies, setDownloadingMovies ] = useState([]) 
+  const [ downloadsNumber, setDownloadsNumber ] = useState(0);
 
   //Toggle Downloads
   const [downloads, setDownloads] = useState(false)
@@ -34,7 +35,7 @@ export default function Main() {
     setMovies(null)
     setPagination(false)
     if(movieName === '') { movieName = query}
-    Axios.get('http://173.28.18.61:9000/api/movies/'+movieName)
+    Axios.get('http://173.28.18.61:3000/api/movies/'+movieName)
     .then(
         response => {
           if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
@@ -43,7 +44,7 @@ export default function Main() {
     .catch(err => {
       setMovies(null)
       setPagination(false)
-      Axios.get('http://173.28.18.61:3000/api/movies/'+movieName)
+      Axios.get('http://173.28.18.61:9000/api/movies/'+movieName)
         .then(
           response => {
             if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
@@ -66,9 +67,10 @@ export default function Main() {
     /*
       Fetching home-page results 
     */
-    Axios.get('http://173.28.18.61:9000/api/movies/action/1')
+    Axios.get('http://173.28.18.61:3000/api/movies/action/1')
     .then(
         response => {
+          console.log("Over here");
             setMovies(response.data)
             setPagination(true)
             console.log(response)
@@ -146,7 +148,7 @@ export default function Main() {
   */
  const didPressDownload = (magnet, title) => {
    console.log(btoa(magnet));
-   Axios.put('http://192.168.86.31:6005/api/torrent/', { torrentUrlBase64: btoa(magnet) })
+   Axios.put('http://173.28.18.61:9091/api/torrent/', { torrentUrlBase64: btoa(magnet) })
     .then(response => {
       console.log("download response --> "+response.data);
     })
@@ -181,14 +183,14 @@ export default function Main() {
 
   const requestMovies = (genre, isIndianMovie, language, year, pageNumber) => {
     if(isIndianMovie) {
-      Axios.get(`http://173.28.18.61:3000/api/movies/${language}/${year}/${pageNumber}`)
+      Axios.get(`http://173.28.18.61:9000/api/movies/${language}/${year}/${pageNumber}`)
       .then(response => {
         setMovies(response.data)
         setPagination(true)
       })
       .catch(error => console.log(error))
     } else {
-      Axios.get(`http://173.28.18.61:9000/api/movies/${genre}/${pageNumber}`)
+      Axios.get(`http://173.28.18.61:3000/api/movies/${genre}/${pageNumber}`)
       .then(response => {
         setMovies(response.data)
         setPagination(true)
@@ -210,9 +212,9 @@ export default function Main() {
         <ThemeProvider theme={theme}>
             <Container maxWidth="sm" style={{display: 'flex', flexDirection: 'column'}} fixed>
               {/* <Alert style={{marginBottom: 3, marginTop: 7}} severity="info">As this is a beta release, some of movies doesn't seem to download (no status), but they will download on the server, please open Plex to check after a while.</Alert> */}
-                  <NavBar didSearch={ handleSubmit } openDownloads={ setDownloads } didPressGenreItem={ didPressGenreItem } openPasteTorrentLink = { setPasteTorrentLink}/>
+                  <NavBar didSearch={ handleSubmit } openDownloads={ setDownloads } didPressGenreItem={ didPressGenreItem } openPasteTorrentLink = { setPasteTorrentLink} downloadsNumber={ downloadsNumber }/>
                   <PopoverPopupState />
-                  { downloads ? <Downloads openDownloads={ setDownloads }/>: pasteTorrentLink ? <PasteTorrentLink didPressDownload={ didPressDownload }/>: getMoviesOrLoadingBar() }
+                  { downloads ? <Downloads setDownloadsNumber={ setDownloadsNumber } openDownloads={ setDownloads }/>: pasteTorrentLink ? <PasteTorrentLink didPressDownload={ didPressDownload }/>: getMoviesOrLoadingBar() }
                   { dialog() }
               { downloads || pasteTorrentLink ? <div></div>:  pagination ? <Pagination count={5} style={{display: "flex", justifyContent: "center", paddingTop: 10, paddingBottom: 25}} size="large" onChange={ didPressPagination } page={ currentPage }/> : <div></div>}
             </Container> 

@@ -9,6 +9,7 @@ import Divider from '@material-ui/core/Divider';
 import { flexbox } from '@material-ui/system';
 import { Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
+import { Alert } from '@material-ui/lab';
 
 
 
@@ -58,9 +59,14 @@ export default function PasteTorrentLink({ didPressDownload }) {
     return (
         <div style={{ paddingTop: 35 }}>
             <Box display="flex" alignContent="center" alignItems="center" justifyContent="center">
-                <Typography component="h8" variant="h8">
-                    Paste torrent or magnet url below to download the torrent
-                </Typography>
+                {/* <Typography component="h8" variant="h8" >
+                    Paste torrent or magnet url below to download. 
+                    Please pick the one with better seeds for faster downloads. 
+                </Typography> */}
+                <Alert severity="info">
+                    Paste torrent or magnet url below to download. 
+                    Please pick the one with better seeds for faster downloads.
+                </Alert>
             </Box>
             <br />
             <Box display="flex" alignContent="center" alignItems="center" justifyContent="center" flexGrow={1}>
@@ -71,6 +77,7 @@ export default function PasteTorrentLink({ didPressDownload }) {
                     onChange={ handleQueryChange }
                     onKeyDown={ (event) => { 
                         if(event.which == 13 || event.keyCode == 13) {
+                            event.target.blur();
                             didPressDownload(query)
                         }
                     }}

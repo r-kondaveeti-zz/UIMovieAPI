@@ -33,17 +33,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 //www.2MovieRulz.gs - Anjali CBI (2019) Telugu (Org Vers) HDRip - x264 - MP3 - 700MB - ESub.mkv
-export default function Downloads({ openDownloads }) {
+export default function Downloads({ openDownloads, setDownloadsNumber }) {
   const classes = useStyles();
   const [ downloadedMovies, setDownloadedMovies ] = useState([]);
   const [ torrentStats, setTorrentStats ] = useState([]);
 
   useEffect(() => {
-    Axios.get('http://192.168.86.31:6005/api/torrent/')
+    Axios.get('http://173.28.18.61:9091/api/torrent/')
     .then(
       response => {
         if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setDownloadedMovies(newMovieArray)}
         else { setDownloadedMovies(response.data) }
+        let count = 0;
+        response.data.forEach(element => {
+          if(element.status == 4) count = count+1;
+        });
+
+        setDownloadsNumber(count);
       })
     .catch(err => {     
       /**
@@ -55,10 +61,18 @@ export default function Downloads({ openDownloads }) {
   }, [])
 
   const requeseTorrentStats = () => {
-    Axios.get('http://192.168.86.31:6005/api/torrent/stats')
+    Axios.get('http://173.28.18.61:9091/api/torrent/stats')
     .then(
       response => {
         setTorrentStats(response.data);
+        let count = 0;
+        response.data.forEach(element => {
+          if(element.status == 6) window.location.reload();
+          if(element.status == 4) count = count+1;
+        });
+
+        setDownloadsNumber(count);
+        
       })
     .catch(err => {     
       /**
@@ -83,13 +97,19 @@ export default function Downloads({ openDownloads }) {
   }
 
   const didPressStop = (torrentId, movieId) => {
-    Axios.delete('http://192.168.86.31:6005/api/torrent', { data: { torrentId: torrentId, movieId: parseInt(movieId) }})
+    Axios.delete('http://173.28.18.61:9091/api/torrent', { data: { torrentId: torrentId, movieId: parseInt(movieId) }})
     .then(() => {
-        Axios.get('http://192.168.86.31:6005/api/torrent')
+        Axios.get('http://173.28.18.61:9091/api/torrent')
         .then(
           response => {
             if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setDownloadedMovies(newMovieArray);}
             else { setDownloadedMovies(response.data) }
+            let count = 0;
+            response.data.forEach(element => {
+              if(element.status == 4) count = count+1;
+            });
+  
+            setDownloadsNumber(count);
           })
         .catch(err => {     
           /**
@@ -114,15 +134,15 @@ export default function Downloads({ openDownloads }) {
       if(downloadedMovies.length - index === 1) { return (
         <div key={index}>
           <ListItem>
-            <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 6 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps` } />
-            { element.status === 6 ? <ListItemIcon><CheckCircleRounded /></ListItemIcon>: <ListItemIcon><Button onClick={() => didPressStop(element.id, element.movieId)}><HighlightOffRounded className={ classes.stopButton } /></Button></ListItemIcon>}
+            <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 0 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps` } />
+            { element.status === 0 ? <ListItemIcon><CheckCircleRounded className={classes.checkSymbol}/></ListItemIcon>: <ListItemIcon><Button onClick={() => didPressStop(element.id, element.movieId)}><HighlightOffRounded className={ classes.stopButton } /></Button></ListItemIcon>}
           </ListItem>
         </div>
       )}
       return (<div key={index}>
                 <ListItem >
-                  <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 6 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps` } />
-                  { element.status === 6 ? <ListItemIcon><CheckCircleRounded className={classes.checkSymbol}/></ListItemIcon>: <ListItemIcon><Button onClick={() => didPressStop(element.id, element.movieId)}><HighlightOffRounded className={ classes.stopButton } /></Button></ListItemIcon>}
+                  <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 0 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps` } />
+                  { element.status === 0 ? <ListItemIcon><CheckCircleRounded className={classes.checkSymbol}/></ListItemIcon>: <ListItemIcon><Button onClick={() => didPressStop(element.id, element.movieId)}><HighlightOffRounded className={ classes.stopButton } /></Button></ListItemIcon>}
                 </ListItem>
                 <Divider />
               </div>)});
