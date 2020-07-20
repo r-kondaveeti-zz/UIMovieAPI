@@ -9,6 +9,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { Box } from '@material-ui/core';
 import Badge from '@material-ui/core/Badge';
 import { withStyles } from '@material-ui/core/styles';
+import { Alert } from '@material-ui/lab';
 
 import SideMenu from '../SideMenu/SideMenu'
 import FadeMenu from '../FadeMenu/FadeMenu'
@@ -44,7 +45,7 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
-export default function NavBar({ didSearch, openDownloads, didPressGenreItem, openPasteTorrentLink, downloadsNumber }) {
+export default function NavBar({ didSearch, openDownloads, didPressGenreItem, openPasteTorrentLink, downloadsNumber, showSnack }) {
   const classes = useStyles();
 
 
@@ -76,6 +77,7 @@ export default function NavBar({ didSearch, openDownloads, didPressGenreItem, op
 
   return (
       <Box  style={{position: 'sticky', top: 5,}}>
+        { showSnack ? <Alert severity="success" color="info" anchorOrigin={'bottom', 'center'}> Added to downloads</Alert>: <div></div> }
         <Paper className={classes.root} >
           <IconButton className={classes.iconButton} aria-label="menu"
             onClick={ toggleSideMenu }

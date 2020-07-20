@@ -65,6 +65,7 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
     .then(
       response => {
         setTorrentStats(response.data);
+        console.log(response.data)
         let count = 0;
         response.data.forEach(element => {
           if(element.status == 6) window.location.reload();

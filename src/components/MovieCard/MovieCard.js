@@ -110,6 +110,7 @@ export default function MovieCard(props) {
     }
   }
   
+  console.log(props.image);
 
   return (
     <Card className={ classes.root }>
