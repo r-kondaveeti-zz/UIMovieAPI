@@ -94,6 +94,8 @@ export default function NavBar({ didSearch, openDownloads, didPressGenreItem, op
               if(event.which == 13 || event.keyCode == 13) {
                 event.target.blur();
                 didSearch(query)
+                openDownloads(false);
+                openPasteTorrentLink(false);
               }
             }}
           />
