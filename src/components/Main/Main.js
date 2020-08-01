@@ -36,7 +36,7 @@ export default function Main() {
     setMovies(null)
     setPagination(false)
     if(movieName === '') { movieName = query}
-    Axios.get('http://173.28.18.61:9091/api/movies/'+movieName)
+    Axios.get('http://173.28.18.61:9091/api/movies/search/english/'+movieName)
     .then(
         response => {
           if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
@@ -45,7 +45,7 @@ export default function Main() {
     .catch(err => {
       setMovies(null)
       setPagination(false)
-      Axios.get('http://173.28.18.61:9091/api/movies/'+movieName)
+      Axios.get('http://173.28.18.61:9091/api/movies/search/indian/'+movieName)
         .then(
           response => {
             if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setMovies(newMovieArray); setPagination(false)}
