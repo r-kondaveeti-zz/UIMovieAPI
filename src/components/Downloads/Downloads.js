@@ -89,12 +89,19 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   }
 
   const parseDate = (dateString) => { 
+    let monthMap = new Map();
+    monthMap[1] = "Jan"; monthMap[2] = "Feb";
+    monthMap[3] = "Mar"; monthMap[4] = "Apr";
+    monthMap[5] = "May"; monthMap[6] = "Jun";
+    monthMap[7] = "Jul"; monthMap[8] = "Aug";
+    monthMap[9] = "Sept"; monthMap[10] = "Oct";
+    monthMap[11] = "Nov"; monthMap[12] = "Dec";
     let date = new Date(dateString);
     let day = date.getDate()
-    let month = date.getMonth() + 1 == 7 ? "July" : date.getMonth() + 1;
+    let month = monthMap[date.getMonth() + 1];
     let year = date.getFullYear()
 
-    return `${month} ${day}, ${year}`;
+    return `${month}, ${day}, ${year}`;
   }
 
   const didPressStop = (torrentId, movieId) => {
@@ -128,9 +135,9 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   }
 
   const downloadedMoviesElements = () => {
-    let downloadedMoviesArray =  downloadedMovies.map((element, index) => {
+    let downloadedMoviesArray =  downloadedMovies.slice(0).reverse().map((element, index) => {
         torrentStats.forEach(responseElement => {
-          if(responseElement.name.includes(element.movieName)) { element.eta = (responseElement.eta/60).toFixed(2); element.speed = (responseElement.rateDownload/1024).toFixed(2); }
+          if(responseElement.name.includes(element.movieName)) { element.eta = (responseElement.eta/60).toFixed(2); element.speed = (responseElement.rateDownload/1024).toFixed(2); element.percentageDone = ((responseElement.percentageDone) * 100);}
         })
       if(downloadedMovies.length - index === 1) { return (
         <div key={index}>
@@ -142,7 +149,7 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
       )}
       return (<div key={index}>
                 <ListItem >
-                  <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 0 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps` } />
+                  <ListItemText primary={ parseMovieName(element.movieName) } secondary={ element.status === 0 ? parseDate(element.addedOn): parseDate(element.addedOn) + ` | ETA: ${ element.eta === undefined ? 0 : element.eta } Min | Speed: ${ element.speed === undefined ? 0 : element.speed } Kbps | ${ element.percentageDone === undefined ? 0 : element.percentageDone } %` } />
                   { element.status === 0 ? <ListItemIcon><CheckCircleRounded className={classes.checkSymbol}/></ListItemIcon>: <ListItemIcon><Button onClick={() => didPressStop(element.id, element.movieId)}><HighlightOffRounded className={ classes.stopButton } /></Button></ListItemIcon>}
                 </ListItem>
                 <Divider />
