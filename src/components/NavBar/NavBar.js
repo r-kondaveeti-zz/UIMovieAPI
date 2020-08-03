@@ -99,8 +99,8 @@ export default function NavBar({ didSearch, openDownloads, didPressGenreItem, op
               }
             }}
           />
-          <IconButton  className={classes.iconButton} aria-label="search" >
-            <SearchIcon onClick={ () => {didSearch(query)} }/>
+          <IconButton  className={classes.iconButton} aria-label="search" onClick={ () => {didSearch(query)} }>
+            <SearchIcon />
           </IconButton>
           <Divider className={classes.divider} orientation="vertical" />
           <IconButton color="primary" className={classes.iconButton} aria-label="directions"

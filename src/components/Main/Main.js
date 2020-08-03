@@ -149,7 +149,7 @@ export default function Main() {
   */
  const didPressDownload = (magnet, title) => {
    console.log(btoa(magnet));
-   Axios.put('http://173.28.18.61:9091/api/torrent/', { torrentUrlBase64: btoa(magnet) })
+   Axios.put('http://localhost:6005/api/torrent/', { torrentUrlBase64: btoa(magnet) })
     .then(response => {
       console.log("download response --> "+response.data);
       setShowSnack(true)

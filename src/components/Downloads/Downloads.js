@@ -39,7 +39,7 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   const [ torrentStats, setTorrentStats ] = useState([]);
 
   useEffect(() => {
-    Axios.get('http://173.28.18.61:9091/api/torrent/')
+    Axios.get('http://localhost:6005/api/torrent/')
     .then(
       response => {
         if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setDownloadedMovies(newMovieArray)}
@@ -61,7 +61,7 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   }, [])
 
   const requeseTorrentStats = () => {
-    Axios.get('http://173.28.18.61:9091/api/torrent/stats')
+    Axios.get('http://localhost:6005/api/torrent/stats')
     .then(
       response => {
         setTorrentStats(response.data);
@@ -105,9 +105,9 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   }
 
   const didPressStop = (torrentId, movieId) => {
-    Axios.delete('http://173.28.18.61:9091/api/torrent', { data: { torrentId: torrentId, movieId: parseInt(movieId) }})
+    Axios.delete('http://localhost:6005/api/torrent', { data: { torrentId: torrentId, movieId: parseInt(movieId) }})
     .then(() => {
-        Axios.get('http://173.28.18.61:9091/api/torrent')
+        Axios.get('http://localhost:6005/api/torrent')
         .then(
           response => {
             if(response.data.length === undefined) { let newMovieArray = [response.data]; console.log(newMovieArray); setDownloadedMovies(newMovieArray);}
@@ -137,7 +137,10 @@ export default function Downloads({ openDownloads, setDownloadsNumber }) {
   const downloadedMoviesElements = () => {
     let downloadedMoviesArray =  downloadedMovies.slice(0).reverse().map((element, index) => {
         torrentStats.forEach(responseElement => {
-          if(responseElement.name.includes(element.movieName)) { element.eta = (responseElement.eta/60).toFixed(2); element.speed = (responseElement.rateDownload/1024).toFixed(2); element.percentageDone = ((responseElement.percentageDone) * 100);}
+          // responseElement.name = responseElement.name.toLowerCase();
+          // element.movieName = element.movieName.toLowerCase();
+          // if(responseElement.name.includes(element.movieName)) { console.log("Got the movie"+element.movieName); element.eta = (responseElement.eta/60).toFixed(2); element.speed = (responseElement.rateDownload/1024).toFixed(2); element.percentageDone = ((responseElement.percentageDone) * 100); console.log(element.speed);}
+          if(responseElement.id === element.movieId) { element.eta = (responseElement.eta/60).toFixed(2); element.speed = (responseElement.rateDownload/1024).toFixed(2); element.percentageDone = ((responseElement.percentageDone) * 100); }
         })
       if(downloadedMovies.length - index === 1) { return (
         <div key={index}>
